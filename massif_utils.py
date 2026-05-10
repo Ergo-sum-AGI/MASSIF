@@ -1,12 +1,12 @@
 # massif_utils.py
+# Shared utility functions for MASSIF
+
 import numpy as np
 from scipy.spatial.distance import pdist
 from scipy.stats import entropy
-import torch
-from transformers import GPT2Tokenizer
 
 def safe_phase_coherence(hidden):
-    """Robust ρ_R that works on single vectors"""
+    """Robust Phase Coherence (ρ_R) - works on single vectors"""
     try:
         if isinstance(hidden, np.ndarray):
             if hidden.ndim == 1:
@@ -22,7 +22,9 @@ def safe_phase_coherence(hidden):
     except:
         return np.nan
 
+
 def safe_anisotropy(hidden):
+    """Robust Anisotropy"""
     try:
         if isinstance(hidden, np.ndarray):
             if hidden.ndim == 1:
@@ -36,7 +38,9 @@ def safe_anisotropy(hidden):
     except:
         return np.nan
 
+
 def safe_complexity(hidden):
+    """Robust Complexity"""
     try:
         if isinstance(hidden, np.ndarray):
             if hidden.ndim == 1 or hidden.shape[0] == 1:
@@ -48,7 +52,9 @@ def safe_complexity(hidden):
     except:
         return np.nan
 
+
 def compute_embedding_gap(hidden):
+    """Embedding Gap Γ"""
     try:
         tokens = hidden[0] if len(hidden.shape) == 3 else hidden
         if tokens.shape[0] < 3:
@@ -60,8 +66,9 @@ def compute_embedding_gap(hidden):
     except:
         return np.nan
 
-# Tokenizer helper
+
 def get_tokenizer():
+    from transformers import GPT2Tokenizer
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
