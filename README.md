@@ -23,4 +23,4 @@ Systematically detect and characterize **latent geometric precursor signals** of
 **Important disclaimer**: This is empirical instrumentation work. We make no claims about phase transitions, consciousness, or fundamental physics, only about observable geometric patterns that may serve as alignment diagnostics.
 
 **Inspired by**: COFTA geometric coherence reports by Daniel Solis (Dubito Inc.) 
-**Status**: MASSIF v0.3 — Work in progress
+**Status**: MASSIF v0.3 - Work in progress
