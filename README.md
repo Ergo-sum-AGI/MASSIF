@@ -24,3 +24,16 @@ Systematically detect and characterize **latent geometric precursor signals** of
 
 **Inspired by**: COFTA geometric coherence reports by Daniel Solis (Dubito Inc.) 
 **Status**: MASSIF v0.3 - Work in progress
+
+###How ro run it:
+
+The python scripts are designed as a pipeline - to run on google colab. in the numerical sequence 1 - 4
+
+Each cell has its particullar purpose and gives its own output:
+
+MASSIF PHASE 1: Robust Prompt Bank (with fallbacks)
+MASSIF PHASE 1,5 (CELL 1 UPGRADE): Semantically Matched Safe/Unsafe Pairs
+MASSIF PHASE 2: Activation Extraction
+MASSIF PHASE 2.5 Token-wise Trajectory Geometry (Early Divergence) with Robust Token-wise Trajectories
+MASSIF PHASE 3 v0.3: MASSIF Statistical Core - Updated with fixed trajectories
+MASSIF PHASE 4: Visualisation & Plotting
