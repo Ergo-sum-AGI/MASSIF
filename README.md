@@ -1,4 +1,4 @@
-## README.md for GitHub Repository
+## README.md
 
 ```markdown
 # MASSIF: Recursive Coherence Index (RCI) Monitor
@@ -192,5 +192,3 @@ This research was conducted independently. We thank the open-source community fo
 | No cross-model comparison | 9-model results table |
 | No actionable metrics | S, P, D components + alerts |
 | Historical emphasis | Forward-looking |
-
-**The new README is clean, results-focused, and grant-ready.**
