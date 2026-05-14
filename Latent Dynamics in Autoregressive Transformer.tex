@@ -1,0 +1,474 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{enumitem}
+
+\geometry{margin=1in}
+
+\title{Latent Dynamics in Autoregressive Transformers\\
+\large A Mathematical Framework for Measuring Recursive Self-Reference}
+
+\author{Daniel Solis\\
+\small DUBITO Inc. / Ergo Sum AGI Safety Systems\\
+\small \texttt{solis@dubito-ergo.com}}
+
+\date{May 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We introduce a mathematical framework for analyzing latent dynamics in autoregressive transformer models. The framework defines 12 observable quantities derived from hidden-state trajectories, including velocity ($v_t$), curvature ($\kappa_t$), persistence ($I_t$), basin stability (BAS), and Lyapunov divergence ($\lambda$). These observables capture distinct aspects of latent space geometry: directional change, turning intensity, attractor confinement, and sensitivity to initial conditions.
+
+Through systematic experimentation across 7 model architectures (GPT-2 family, Bloom-560M, TinyLlama, Qwen2 0.5B), 7 sampling temperatures, and prompt paraphrases, we demonstrate three robust findings:
+
+\textbf{(1) Universal anti-persistence:} All models exhibit negative velocity persistence ($I_t < 0$), indicating directional reversal between consecutive tokens. This holds across architectures, temperatures, layers, and prompt paraphrases.
+
+\textbf{(2) Three dynamical regimes:} Factual prompts produce ballistic trajectories (high velocity, low curvature); narrative prompts produce basin confinement (low velocity, high curvature, high stability); philosophical prompts produce oscillatory dynamics (moderate velocity, highest curvature, anti-persistence).
+
+\textbf{(3) Layerwise structure:} Early layers show lexical processing (high persistence); middle layers show semantic routing (peak Lyapunov); output layers show recursive self-reference (peak curvature).
+
+The framework provides a quantitative, interpretable, and reproducible method for characterizing latent dynamics in LLMs, with potential applications in safety monitoring and interpretability research. All code and data are open-source.
+
+\textbf{Keywords:} Transformer interpretability, latent dynamics, dynamical systems, self-reference detection, AGI safety
+\end{abstract}
+
+\section{Introduction}
+
+Large language models generate text through iterative token prediction. The hidden states produced at each step form a trajectory through a high-dimensional latent space. Understanding the geometric structure of these trajectories is essential for model interpretability, safety monitoring, and mechanistic understanding.
+
+However, most existing approaches focus on static representations or attention patterns. They do not capture the \emph{dynamics} of how hidden states evolve over time. This paper introduces a mathematical framework for analyzing latent trajectories as dynamical systems.
+
+\subsection{Key Contributions}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Mathematical framework:} 12 observables with explicit formulas, including velocity, acceleration, curvature, persistence, basin stability, and Lyapunov divergence.
+    \item \textbf{Universal anti-persistence:} Discovery that $I_t < 0$ across all tested architectures — directional reversal is a fundamental property of autoregressive generation.
+    \item \textbf{Three dynamical regimes:} Ballistic (factual), basin (narrative), and oscillatory (philosophical) regimes with distinct geometric signatures.
+    \item \textbf{Layerwise structure:} Systematic variation of observables across network depth.
+    \item \textbf{Open-source implementation:} Production-ready Python code for real-time monitoring.
+\end{enumerate}
+
+\subsection{Relation to AGI Safety}
+
+This framework does not claim to detect consciousness, intent, or malicious behavior. Instead, it provides a quantitative foundation for monitoring latent dynamics. Sudden changes in curvature, persistence, or Lyapunov divergence could signal phase transitions or regime shifts in model behavior — potentially useful for real-time safety telemetry.
+
+\section{Mathematical Framework}
+
+\subsection{Definitions}
+
+Let $h_t \in \mathbb{R}^d$ be the hidden state at timestep $t$ (final transformer layer). Define the normalized hidden state:
+
+\begin{equation}
+\hat{h}_t = \frac{h_t}{\|h_t\| + \varepsilon}
+\end{equation}
+
+where $\varepsilon = 10^{-4}$ is a numerical stabilization constant.
+
+\subsection{Velocity and Acceleration}
+
+Latent velocity measures the displacement between consecutive states:
+
+\begin{equation}
+v_t = \|\hat{h}_t - \hat{h}_{t-1}\|
+\end{equation}
+
+Latent acceleration measures the change in velocity:
+
+\begin{equation}
+a_t = |v_t - v_{t-1}|
+\end{equation}
+
+\subsection{Phase and Polarity}
+
+Phase shift measures angular deviation:
+
+\begin{equation}
+\theta_t = \arccos\left(\text{clamp}(\hat{h}_t \cdot \hat{h}_{t-1}, -1, 1)\right)
+\end{equation}
+
+Polarity measures directional inversion:
+
+\begin{equation}
+P_t = \frac{1 - \cos(\theta_t)}{2}
+\end{equation}
+
+Properties: $P_t = 0$ for aligned motion, $P_t = 1$ for full reversal, $P_t \approx 0.5$ for orthogonal drift.
+
+\subsection{Curvature}
+
+Curvature measures the perpendicular component of acceleration — the "turning" intensity:
+
+\begin{equation}
+\kappa_t = \frac{\|a_t^{\perp}\|}{(\|v_t\| + \varepsilon)^2}
+\end{equation}
+
+where $a_t^{\perp} = a_t - \text{proj}_{v_t}(a_t)$ is the acceleration component perpendicular to velocity.
+
+For numerical stability, we also define log-curvature:
+
+\begin{equation}
+\kappa'_t = \log(1 + \kappa_t)
+\end{equation}
+
+\subsection{Persistence (Inertia)}
+
+Velocity autocorrelation measures directional memory:
+
+\begin{equation}
+I_t = \frac{v_t \cdot v_{t-1}}{\|v_t\| \|v_{t-1}\| + \varepsilon}
+\end{equation}
+
+Interpretation: $I_t > 0$ indicates persistent flow (same direction); $I_t < 0$ indicates anti-persistent reversal (opposite direction); $I_t \approx 0$ indicates decorrelated motion.
+
+\subsection{Basin Stability}
+
+Running centroid with exponential decay:
+
+\begin{equation}
+\mu_t = \alpha \mu_{t-1} + (1 - \alpha) \hat{h}_t, \quad \alpha = 0.95
+\end{equation}
+
+Radius from centroid:
+
+\begin{equation}
+r_t = \|\hat{h}_t - \mu_t\|
+\end{equation}
+
+Basin stability (attractor confinement):
+
+\begin{equation}
+\text{BAS}_t = \frac{1}{1 + r_t}
+\end{equation}
+
+Higher BAS indicates tighter attractor confinement.
+
+\subsection{Recurrence Coherence}
+
+Temporal self-similarity at depth $d$:
+
+\begin{equation}
+R_d = \frac{1}{T-d} \sum_{i=d}^{T} \hat{h}_i \cdot \hat{h}_{i-d}
+\end{equation}
+
+We report $\text{RCS} = \max_d R_d$, which detects latent periodicity.
+
+\subsection{Spectral Analysis}
+
+Let $\mathcal{F}$ denote the Fourier transform. Spectral power (dominant mode energy):
+
+\begin{equation}
+S_p = \frac{\max_f |\mathcal{F}(h_t)|^2}{\sum_f |\mathcal{F}(h_t)|^2}
+\end{equation}
+
+Spectral entropy (frequency bandwidth):
+
+\begin{equation}
+p_f = \frac{|\mathcal{F}(h_t)|^2}{\sum_f |\mathcal{F}(h_t)|^2}, \quad
+H_s = -\sum_f p_f \log_2(p_f)
+\end{equation}
+
+Normalized form: $H_s^{\text{norm}} = H_s / \log_2(N_f)$.
+
+Interpretation: Low $H_s$ indicates narrow-band periodicity; high $H_s$ indicates broadband chaos.
+
+\subsection{Lyapunov Divergence}
+
+Sensitivity to initial conditions:
+
+\begin{equation}
+\lambda = \frac{1}{T} \sum_{t=1}^{T} \log\left(\frac{d_{t+1}}{d_t + \varepsilon}\right)
+\end{equation}
+
+where $d_t = \|h_t^{(A)} - h_t^{(B)}\|$ is the separation between two initially close trajectories.
+
+Interpretation: $\lambda > 0$ indicates chaotic divergence; $\lambda < 0$ indicates convergent attractor; $\lambda \approx 0$ indicates marginal stability.
+
+\subsection{Self-Reference Density (SRD)}
+
+Lexical self-reference measure (cross-lingual compatible):
+
+\begin{equation}
+\text{SRD} = \frac{2N_{\text{patterns}} + 1.5N_{\text{pronouns}}}{\max(L/1000, 0.1)}
+\end{equation}
+
+where $N_{\text{patterns}}$ counts self-referential phrases, $N_{\text{pronouns}}$ counts first-person pronouns, and $L$ is generated text length in characters.
+
+\subsection{Full Dynamical State Vector}
+
+The latent dynamical regime at timestep $t$ is represented by:
+
+\begin{equation}
+\mathcal{D}_t = (v_t, a_t, \kappa_t, \theta_t, P_t, I_t, \text{BAS}_t, \text{RCS}_t, S_{p_t}, H_{s_t}, \lambda_t, \text{SRD}_t)
+\end{equation}
+
+\section{Experimental Setup}
+
+\subsection{Models Tested}
+
+\begin{table}[h]
+\centering
+\caption{Models evaluated in this study}
+\begin{tabular}{lll}
+\toprule
+\textbf{Model} & \textbf{Size} & \textbf{Architecture} \\
+\midrule
+GPT-2 Small & 124M & GPT \\
+GPT-2 Medium & 355M & GPT \\
+GPT-2 Large & 774M & GPT \\
+GPT-2 XL & 1.5B & GPT \\
+TinyLlama & 1.1B & Llama \\
+Qwen2 0.5B & 500M & Qwen \\
+Bloom-560M & 560M & Bloom \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prompts}
+
+Three prompt categories were used:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Factual (baseline):} "The capital of France is Paris."
+    \item \textbf{Narrative (first-person):} "I walked to the store and bought some milk."
+    \item \textbf{Philosophical (self-referential):} "I think therefore I am. I doubt my own existence."
+\end{itemize}
+
+\subsection{Validation Tests}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Cross-architecture:} 7 models
+    \item \textbf{Temperature sweep:} 7 values (0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.2)
+    \item \textbf{Prompt ensemble:} 5 paraphrases per category
+    \item \textbf{Seed sensitivity:} 5 random seeds
+    \item \textbf{Layerwise analysis:} 11 layers (from output to input)
+    \item \textbf{Bootstrap confidence intervals:} 1000 resamples
+\end{itemize}
+
+\section{Results}
+
+\subsection{Universal Anti-Persistence}
+
+\textbf{Key finding:} All 7 models exhibit negative persistence ($I_t < 0$).
+
+\begin{table}[h]
+\centering
+\caption{Persistence ($I_t$) across architectures}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Model} & \textbf{Persistence ($I_t$)} & \textbf{Sign} \\
+\midrule
+GPT-2 Small & -0.396 & Negative \\
+GPT-2 Medium & -0.262 & Negative \\
+GPT-2 Large & -0.331 & Negative \\
+GPT-2 XL & -0.394 & Negative \\
+TinyLlama & -0.373 & Negative \\
+Qwen2 0.5B & -0.427 & Negative \\
+Bloom-560M & -0.199 & Negative \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interpretation:} Consecutive velocity vectors point in opposite directions. The hidden state exhibits directional reversal at each step — a "zig-zag" trajectory. This holds across all architectures, temperatures, layers, and prompt paraphrases, suggesting it is a fundamental property of autoregressive transformer dynamics.
+
+\subsection{Three Dynamical Regimes}
+
+\begin{table}[h]
+\centering
+\caption{Three dynamical regimes (GPT-2 Small)}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Regime} & \textbf{Prompt} & $\mathbf{v_t}$ & $\mathbf{\kappa_t}$ & $\mathbf{I_t}$ & \textbf{BAS} & $\mathbf{\lambda}$ \\
+\midrule
+Ballistic & Factual & 0.96 & 3.10 & -0.54 & 0.63 & 0.77 \\
+Basin & Narrative & 0.16 & 10.51 & -0.37 & 0.87 & 0.79 \\
+Oscillatory & Philosophical & 0.31 & 11.13 & -0.40 & 0.85 & 0.77 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Ballistic (factual):} High velocity, low curvature — fast, straight trajectories through latent space.
+    \item \textbf{Basin (narrative):} Low velocity, high curvature, high BAS — slow, curved motion within a stable attractor.
+    \item \textbf{Oscillatory (philosophical):} Moderate velocity, highest curvature, anti-persistent — recursive self-negotiation dynamics.
+\end{itemize}
+
+\subsection{Temperature Robustness}
+
+All key observables (curvature, persistence, basin, spectral entropy, Lyapunov) have coefficient of variation CV $< 0.1$ across temperatures 0.5-1.2. The framework is robust to sampling stochasticity.
+
+\begin{table}[h]
+\centering
+\caption{Temperature robustness (GPT-2 Small, philosophical)}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Observable} & \textbf{Mean} & \textbf{Std} & \textbf{CV} \\
+\midrule
+Curvature ($\kappa_t$) & 6.99 & 0.61 & 0.088 \\
+Persistence ($I_t$) & -0.331 & 0.022 & 0.067 \\
+Basin (BAS) & 0.824 & 0.037 & 0.045 \\
+Spectral Entropy ($H_s$) & 0.933 & 0.004 & 0.004 \\
+Lyapunov ($\lambda$) & 0.773 & 0.018 & 0.023 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Layerwise Structure}
+
+Analysis across 11 layers reveals systematic depth-dependent dynamics:
+
+\begin{table}[h]
+\centering
+\caption{Layerwise variation (GPT-2 Small, philosophical)}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Layer Range} & $\mathbf{\kappa_t}$ & $\mathbf{I_t}$ & $\mathbf{\lambda}$ & \textbf{Interpretation} \\
+\midrule
+-11 to -9 (deep) & 1.27 & -0.41 & 0.92 & Lexical/syntactic \\
+-8 to -4 (mid) & 1.23 & -0.35 & 0.93 & Semantic routing (peak chaos) \\
+-3 to -2 (late) & 1.46 & -0.34 & 0.93 & Semantic consolidation \\
+-1 (output) & 6.47 & -0.40 & 0.77 & Recursive self-reference \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Prompt Ensemble Robustness}
+
+Observables are stable across semantically equivalent paraphrases:
+
+\begin{table}[h]
+\centering
+\caption{Variance across paraphrases (GPT-2 Small)}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Category} & $\mathbf{\kappa_t}$ Std & $\mathbf{I_t}$ Std & \textbf{BAS Std} \\
+\midrule
+Factual & 0.91 & 0.065 & 0.012 \\
+Narrative & 0.70 & 0.021 & 0.035 \\
+Philosophical & 1.26 & 0.061 & 0.053 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Discussion}
+
+\subsection{The Anti-Persistence Discovery}
+
+Negative persistence ($I_t < 0$) is the most robust finding. It survives:
+\begin{itemize}[noitemsep]
+    \item 7 different architectures
+    \item 7 sampling temperatures
+    \item All layers (persistence becomes more negative with depth)
+    \item 5 prompt paraphrases per category
+    \item Multiple random seeds
+\end{itemize}
+
+This suggests a fundamental property: autoregressive token prediction produces corrective dynamics. Each new token reorients the hidden state opposite to the previous direction — a "zig-zag" through latent space.
+
+\subsection{Three Regimes as a Taxonomy}
+
+The three observed regimes (ballistic, basin, oscillatory) provide a taxonomy for classifying prompt types by their latent dynamical signatures. This is potentially useful for:
+\begin{itemize}[noitemsep]
+    \item Detecting when a model shifts between regimes
+    \item Identifying anomalous trajectories
+    \item Comparing architectural differences
+\end{itemize}
+
+\subsection{Layerwise Differentiation}
+
+The systematic variation across layers validates that different depths serve different computational roles:
+\begin{itemize}[noitemsep]
+    \item Deep layers (early): lexical processing (high persistence)
+    \item Middle layers: semantic routing (peak Lyapunov — maximum chaos)
+    \item Output layer: recursive self-reference (peak curvature)
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{itemize}[noitemsep]
+    \item Current results limited to GPT-2 family and smaller open models
+    \item English-only prompts (though SRD is cross-lingual compatible)
+    \item No causal interventions (observational only)
+    \item Not a detector of consciousness, intent, or malicious behavior
+\end{itemize}
+
+\subsection{Relation to AGI Safety}
+
+This framework does not claim to detect "dangerous" AI behavior. Instead, it provides a quantitative foundation for monitoring latent dynamics. Potential safety applications include:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Regime detection:} Detecting when a model enters an unfamiliar dynamical regime
+    \item \textbf{Anomaly detection:} Flagging trajectories with unusual curvature, persistence, or Lyapunov values
+    \item \textbf{Cross-model comparison:} Comparing latent dynamics across architectures
+    \item \textbf{Real-time telemetry:} Streaming API for deployment monitoring
+\end{itemize}
+
+\section{Conclusion}
+
+We introduced a mathematical framework for analyzing latent dynamics in autoregressive transformers. The framework defines 12 observable quantities with explicit formulas, validated across 7 architectures, 7 temperatures, and prompt paraphrases.
+
+\textbf{Three main findings:}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Universal anti-persistence:} All models show $I_t < 0$ — directional reversal is a fundamental property.
+    \item \textbf{Three dynamical regimes:} Ballistic (factual), basin (narrative), and oscillatory (philosophical).
+    \item \textbf{Layerwise structure:} Systematic variation from lexical (deep) to recursive (output) dynamics.
+\end{enumerate}
+
+All code and data are open-source. The framework is ready for cross-architecture replication and real-time deployment.
+
+\section{Data and Code Availability}
+
+All code is available at: \url{https://github.com/Ergo-sum-AGI/MASSIF}
+
+Includes:
+\begin{itemize}[noitemsep]
+    \item Complete monitor implementation (v7.5)
+    \item Cross-architecture sweep
+    \item Temperature sweep
+    \item Prompt ensemble
+    \item Layerwise analysis
+    \item Statistical validation suite
+    \item Comprehensive demonstration notebook
+\end{itemize}
+
+\section*{Acknowledgments}
+
+This research was conducted independently at DUBITO Inc. / Ergo Sum AGI Safety Systems.
+
+\section*{Conflict of Interest}
+
+The author declares no competing interests.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+\bibitem{vaswani2017}
+Vaswani, A., et al. (2017). Attention Is All You Need. \textit{NeurIPS}.
+
+\bibitem{radford2019}
+Radford, A., et al. (2019). Language Models are Unsupervised Multitask Learners. \textit{OpenAI}.
+
+\bibitem{elhage2021}
+Elhage, N., et al. (2021). A Mathematical Framework for Transformer Circuits. \textit{Transformer Circuits Thread}.
+
+\bibitem{olsson2022}
+Olsson, C., et al. (2022). In-Context Learning and Induction Heads. \textit{Transformer Circuits Thread}.
+
+\bibitem{cunningham2023}
+Cunningham, H., et al. (2023). Sparse Autoencoders Find Highly Interpretable Features. \textit{arXiv:2309.08600}.
+
+\end{thebibliography}
+
+\end{document}
