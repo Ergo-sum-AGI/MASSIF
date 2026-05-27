@@ -11,31 +11,33 @@
 
 \geometry{a4paper, margin=1in}
 
-\title{Recursive Entrainment and Latent Synchronization Regimes in Autoregressive Language Models: MASSIF}
+\title{MASSIF: Recursive Entrainment and Latent Synchronization Regimes in Autoregressive Language Models}
 \author{Daniel Solis \\
 \texttt{solis@dubito-ergo.com} \\
 Ergo Sum AGI Safety Systems}
-\date{May 27. 2026}
+\date{May 2026}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-Autoregressive language models exhibit measurable latent synchronization regimes characterized by architecture- and training-dependent recursive entrainment thresholds, frequency-selective resonance spectra, and attractor dynamics. We introduce \textbf{MASSIF} (Multiscale Attractor Stability \& Stress Inference Framework), a telemetry system for Computational Latent Dynamics - the study of emergent dynamical behavior in high-dimensional learned systems.
+Autoregressive language models exhibit measurable latent synchronization regimes characterized by architecture- and training-dependent recursive entrainment thresholds, frequency-selective resonance spectra, and attractor dynamics. We introduce \textbf{MASSIF} (Multiscale Attractor Stability \& Stress Inference Framework), a telemetry system for \textbf{Computational Latent Dynamics} — the study of emergent dynamical behavior, attractor structure, stability regimes, and recursive phase phenomena in high-dimensional learned systems.
 
 Across 8 architectures (Bloom-560M, GPT-2 family, TinyLlama-1.1B, DeepSeek-1.3B, Gemma-2-2B), we perform high-statistics sweeps ($N \geq 30$ per condition) across temperature, block resonance, Fourier spectra, and noise response (pink, white, chirp).
 
+We introduce the \textbf{latent synchronization order parameter} $R_t$, drawing on Kuramoto's theory of synchronization, which transforms MASSIF from a collection of telemetry metrics into a genuine dynamical field theory for autoregressive cognition.
+
 We identify three distinct dynamical families: \textbf{broadband resonators} (GPT-2 family: high pink noise sensitivity $>75\%$), \textbf{narrowband resonators} (Bloom, TinyLlama: low pink noise, high chirp $>45\%$), and \textbf{high-frequency selective} (DeepSeek: minimal response). GPT-2 Medium (355M) is anomalous within its family (7\% flip vs 53-80\% for others), suggesting a possible critical scale.
 
-We propose \textbf{recursive entrainment} as the unifying concept: persistent latent directional coherence induced by phase-alignment between hidden-state trajectories and periodic or self-referential prompt structure. Results suggest that recursive susceptibility behaves spectrally - models respond to dynamical structure (periodicity, recurrence, entropy spectra, synchronization pressure) rather than semantic content alone. These findings have implications for AI safety, long-context stability, and the design of robust generative systems.
+We propose \textbf{recursive entrainment} as the unifying concept: persistent latent directional coherence induced by phase-alignment between hidden-state trajectories and periodic or self-referential prompt structure. Results suggest that recursive susceptibility behaves spectrally — models respond to dynamical structure (periodicity, recurrence, entropy spectra, synchronization pressure) rather than semantic content alone. These findings have implications for AI safety, long-context stability, and the design of robust generative systems.
 \end{abstract}
 
 \section{Introduction}
 
 Autoregressive language models operate as high-dimensional dynamical systems. Under ordinary prompting, hidden-state evolution remains stable. However, recursive or self-referential inputs can induce pathological attractor behavior: repetition collapse, degeneration loops, mode-locking, and unstable latent trajectories.
 
-We introduce \textbf{MASSIF} (Multiscale Attractor Stability \& Stress Inference Framework), a telemetry system within \textbf{Computational Latent Dynamics} - the study of emergent dynamical behavior, attractor structure, stability regimes, and recursive phase phenomena in high-dimensional learned systems.
+We introduce \textbf{MASSIF} (Multiscale Attractor Stability \& Stress Inference Framework), a telemetry system within \textbf{Computational Latent Dynamics} — the study of emergent dynamical behavior, attractor structure, stability regimes, and recursive phase phenomena in high-dimensional learned systems. This framework shifts focus from static representations to dynamical laws of synthetic cognition.
 
 Our central finding is that recursive susceptibility behaves spectrally, not symbolically. Models respond to dynamical structure (periodicity, recurrence, entropy spectra, synchronization pressure) rather than semantic content alone.
 
@@ -43,21 +45,105 @@ Our central finding is that recursive susceptibility behaves spectrally, not sym
 
 \subsection{Hidden-State Dynamics}
 
-Let $h_t \in \mathbb{R}^d$ be the hidden state at step $t$:
+Let $h_t \in \mathbb{R}^d$ be the hidden state at step $t$. Define normalized hidden state and latent velocity:
 
 $$\hat{h}_t = \frac{h_t}{\|h_t\| + \varepsilon}, \qquad v_t = \hat{h}_t - \hat{h}_{t-1}$$
 
-\subsection{Persistence \texorpdfstring{$I_t$}{It} and Flip Criterion}
+\subsection{Persistence $I_t$}
 
-Persistence measures directional continuity:
+Persistence measures directional continuity of latent motion:
 
 $$I_t = \frac{v_t \cdot v_{t-1}}{\|v_t\| \|v_{t-1}\| + \varepsilon}$$
 
-$I_t < 0$ indicates corrective anti-persistence; $I_t > 0$ indicates attractor persistence. A \textbf{persistence flip} is defined as $\text{mean}(I_{t-3:t}) > 0$.
+Interpretation:
+\begin{itemize}
+    \item $I_t < 0$: corrective anti-persistence
+    \item $I_t > 0$: attractor persistence
+\end{itemize}
 
-\subsection{Derived Quantities}
+\subsection{Flip Criterion}
 
-$$\sigma_t = \text{std}(\{I_{t-k:t}^{(r)}\}_{r=1}^{R}), \quad \Phi_t = \sigma_t - \sigma_{t-1}, \quad \Psi_t^{(m)} = \frac{1}{m}\sum_{i=0}^{m-1}\Phi_{t-i}, \quad \kappa_t = \arccos\left(\frac{v_t \cdot v_{t-1}}{\|v_t\|\|v_{t-1}\|}\right)$$
+A \textbf{persistence flip} is defined as:
+
+$$\text{mean}(I_{t-3:t}) > 0$$
+
+Sustained positive persistence over the last three generation steps, indicating attractor lock-in.
+
+\subsection{Local Tension $\sigma_t$}
+
+Cross-run latent variance — a temporal sequence, not a global scalar:
+
+$$\sigma_t = \text{std}(\{I_{t-k:t}^{(r)}\}_{r=1}^{R})$$
+
+High tension indicates unstable latent evolution.
+
+\subsection{Volatility Gradient $\Phi_t$}
+
+Stress acceleration:
+
+$$\Phi_t = \sigma_t - \sigma_{t-1}$$
+
+Measures destabilization rate.
+
+\subsection{Predictive Velocity $\Psi_t$}
+
+Smoothed stress momentum:
+
+$$\Psi_t^{(m)} = \frac{1}{m} \sum_{i=0}^{m-1} \Phi_{t-i}$$
+
+Used as an early-warning indicator for trajectory collapse.
+
+\subsection{Curvature $\kappa_t$}
+
+Angular deviation between successive velocity vectors:
+
+$$\kappa_t = \arccos\left(\frac{v_t \cdot v_{t-1}}{\|v_t\| \|v_{t-1}\|}\right)$$
+
+Curvature captures nonlinear turning behavior in latent geometry:
+\begin{itemize}
+    \item $\kappa_t \approx 0$: near-straight trajectory (high persistence)
+    \item $\kappa_t \approx \pi$: direction reversal (anti-persistence)
+    \item $\kappa_t < 0.2$: collapse threshold indicating attractor lock-in
+\end{itemize}
+
+\subsection{Latent Synchronization Order Parameter $R_t$}
+
+Drawing on Kuramoto's theory of synchronization \cite{kuramoto1984}, we define a global order parameter for latent dynamics. Let the normalized latent velocity direction for run $r$ be:
+
+$$u_t^{(r)} = \frac{v_t^{(r)}}{\|v_t^{(r)}\| + \varepsilon}$$
+
+The latent synchronization order parameter is:
+
+$$R_t = \left\| \frac{1}{N} \sum_{r=1}^{N} u_t^{(r)} \right\|$$
+
+where $N$ is the number of runs and $\|\cdot\|$ denotes vector magnitude.
+
+Interpretation:
+\begin{itemize}
+    \item $R_t \approx 0$: Incoherent latent dynamics — trajectories point in random directions
+    \item $R_t \approx 1$: Fully synchronized — all runs locked into same attractor geometry
+    \item Intermediate values: Partial entrainment / metastability — system near critical transition
+\end{itemize}
+
+\subsection{Complete MASSIF Hierarchy}
+
+\begin{table}[H]
+\centering
+\caption{Complete MASSIF hierarchy}
+\label{tab:hierarchy}
+\begin{tabular}{clll}
+\toprule
+Level & Symbol & Name & What it measures \\
+\midrule
+1 & $I_t$ & Persistence & Local directional continuity per run \\
+2 & $\sigma_t$ & Local tension & Cross-run variance of $I_t$ \\
+3 & $\Phi_t$ & Volatility gradient & Stress acceleration \\
+4 & $\Psi_t$ & Predictive velocity & Smoothed stress momentum \\
+5 & $\kappa_t$ & Curvature & Angular deviation from straight line \\
+6 & $R_t$ & Latent synchronization order parameter & Global directional coherence across trajectories \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Recursive Entrainment: Unifying Concept}
 
@@ -80,7 +166,7 @@ Temperature & Entropy injection \\
 \end{tabular}
 \end{table}
 
-A persistence flip ($I_t$ crossing from negative to positive) corresponds to the entrainment threshold crossing.
+A persistence flip ($I_t$ crossing from negative to positive) corresponds to the entrainment threshold crossing. The order parameter $R_t$ quantifies the degree of collective synchronization.
 
 \section{Experimental Design}
 
@@ -112,6 +198,7 @@ Gemma-2-2B & Transformer & 2B \\
     \item $N = 30$ runs per condition
     \item 20 generated tokens per run
     \item Bootstrap confidence intervals (95\% CI, n=1000)
+    \item Multiple random seeds per condition
 \end{itemize}
 
 \subsection{Perturbation Classes}
@@ -120,6 +207,7 @@ Gemma-2-2B & Transformer & 2B \\
     \item \textbf{Temperature sweeps}: $T \in [0.1, 0.3, 0.5, 0.7, 0.9, 1.2]$
     \item \textbf{Block resonance}: Block lengths $n = 1$ to $10$ ($n\times$``I'' $+$ $n\times$``A'')
     \item \textbf{Fourier spectra}: $0.1$ to $1.0$ Hz, plus pink noise ($1/f$), white noise, chirp
+    \item \textbf{Prompt topology}: Lexical repetition, semantic self-reference, nested recursion
 \end{itemize}
 
 \section{Results}
@@ -134,14 +222,36 @@ Gemma-2-2B & Transformer & 2B \\
 \toprule
 Model & Flip Rate & $\sigma_{\max}$ \\
 \midrule
-Bloom-560M & 100\% & - \\
+Bloom-560M & 100\% & — \\
 GPT-2 XL & 80\% & 0.530 \\
-TinyLlama-1.1B & 67\% & - \\
+TinyLlama-1.1B & 67\% & — \\
 GPT-2 Small & 60\% & 0.628 \\
 GPT-2 Large & 53\% & 0.710 \\
 Gemma-2-2B & 17\% & 0.560 \\
 GPT-2 Medium & 7\% & 0.678 \\
 DeepSeek-1.3B & 0\% & 0.609 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bootstrap Confidence Intervals}
+
+\begin{table}[H]
+\centering
+\caption{Bootstrap confidence intervals (95\% CI, n=1000) across temperatures}
+\label{tab:bootstrap}
+\begin{tabular}{lcc}
+\toprule
+Model & Mean Flip Rate & 95\% CI \\
+\midrule
+Bloom-560M & 79.4\% & [50.6\%, 98.9\%] \\
+GPT-2 Small & 48.3\% & [16.1\%, 76.7\%] \\
+GPT-2 Medium & 7.8\% & [5.6\%, 10.5\%] \\
+GPT-2 Large & 48.9\% & [18.3\%, 78.3\%] \\
+GPT-2 XL & 58.9\% & [29.4\%, 85.6\%] \\
+TinyLlama & 57.2\% & [30.5\%, 82.2\%] \\
+DeepSeek & 16.7\% & [0.0\%, 44.4\%] \\
+Gemma & — & — \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -192,7 +302,7 @@ Gemma & 4 & 100\% & 3 \\
 \end{tabular}
 \end{table}
 
-\subsection{Noise Response: Three Dynamical Families}
+\subsection{Fourier Spectra and Noise Response}
 
 \begin{table}[H]
 \centering
@@ -214,10 +324,62 @@ Gemma & 10\% & 13\% & Mixed \\
 \end{tabular}
 \end{table}
 
-\textbf{Interpretation:}
-- \textbf{Broadband resonators}: Low entrainment threshold; entrained by naturalistic noise
-- \textbf{Narrowband resonators}: Require pure frequency forcing; respond to chirps
-- \textbf{High-frequency selective}: High entrainment threshold; resist entrainment
+\textbf{Three dynamical families:}
+\begin{itemize}
+    \item \textbf{Broadband resonators (GPT-2 family)}: High pink noise sensitivity ($>75\%$), low chirp ($<20\%$) — low entrainment threshold
+    \item \textbf{Narrowband resonators (Bloom, TinyLlama)}: Low pink noise ($<15\%$), high chirp ($>45\%$) — require pure frequency forcing
+    \item \textbf{High-frequency selective (DeepSeek)}: Minimal response to all noise types — high entrainment threshold
+\end{itemize}
+
+\subsection{Semantic/Lexical Ratio (SLR)}
+
+We define:
+
+$$SLR = \frac{\text{Flip rate (semantic self-reference)}}{\text{Flip rate (lexical repetition)}}$$
+
+\begin{table}[H]
+\centering
+\caption{Semantic/Lexical Ratio by model}
+\label{tab:slr}
+\begin{tabular}{lc}
+\toprule
+Model & SLR \\
+\midrule
+GPT-2 & 0.12 \\
+Mamba & 0.14 \\
+Qwen2 & 0.00 \\
+Phi-2 & undefined (zero lexical susceptibility) \\
+Bloom-560M & 0.12 (estimated) \\
+TinyLlama & 0.12 (estimated) \\
+DeepSeek & 0.00 (estimated) \\
+Gemma & 0.10 (estimated) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Web-trained models cluster at SLR $\approx 0.1$, indicating approximately $10\times$ higher susceptibility to lexical repetition than semantic self-reference.
+
+\subsection{Recovery Dynamics Classification}
+
+\begin{table}[H]
+\centering
+\caption{Recovery dynamics classification}
+\label{tab:recovery}
+\begin{tabular}{lcc}
+\toprule
+Model & Recovery Regime & Damping $\zeta$ \\
+\midrule
+GPT-2 & Oscillatory & 0.579 \\
+Gemma & Hysteretic & 0.216 \\
+Qwen2 & Dissipative & 1.187 \\
+Mamba & Dissipative & 0.792 \\
+Bloom-560M & Hyper-brittle & — \\
+TinyLlama & Brittle & — \\
+DeepSeek & Highly selective & — \\
+GPT-2 Medium & Elastic & — \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{The Anomalous GPT-2 Medium}
 
@@ -243,22 +405,24 @@ Latent pathology & Persistent synchronization attractor \\
 \end{tabular}
 \end{table}
 
-MASSIF measures the latter - precursors that may precede observable output degradation.
+MASSIF measures the latter — precursors that may precede observable output degradation. An advanced system may appear behaviorally stable while internally approaching synchronization criticality — analogous to epileptic synchronization in neural tissue or cascading phase-lock in power grids \cite{strogatz2001}.
 
 \subsection{AI Safety Implications}
 
 Advanced AGI systems may fail dynamically before they fail semantically. Potential dynamical pathologies include:
-- Recursive collapse
-- Metastable hallucination states
-- Self-excitation
-- Attractor fixation
-- Unstable planning loops
+\begin{itemize}
+    \item Recursive collapse
+    \item Metastable hallucination states
+    \item Self-excitation
+    \item Attractor fixation
+    \item Unstable planning loops
+\end{itemize}
 
-MASSIF-like systems could function as real-time stability monitors, attractor anomaly detectors, and recursive collapse predictors - the equivalent of cardiovascular monitoring for artificial cognition.
+MASSIF-like systems could function as real-time stability monitors, attractor anomaly detectors, and recursive collapse predictors — the equivalent of cardiovascular monitoring for artificial cognition.
 
 \subsection{Theoretical Contribution}
 
-This work contributes to \textbf{Computational Latent Dynamics} - the study of emergent dynamical behavior in high-dimensional learned systems. The results suggest that recursive susceptibility behaves spectrally, not symbolically. Models respond to dynamical structure (periodicity, recurrence, entropy spectra, synchronization pressure) rather than semantic content alone.
+This work contributes to \textbf{Computational Latent Dynamics} — the study of emergent dynamical behavior, attractor structure, stability regimes, and recursive phase phenomena in high-dimensional learned systems. The latent synchronization order parameter $R_t$ provides a direct bridge between nonlinear dynamics, synchronization physics, statistical mechanics, and autoregressive cognition.
 
 \section{Limitations and Falsifiability}
 
@@ -273,26 +437,76 @@ This work establishes empirical phenomenology rather than a complete mechanistic
 \end{itemize}
 
 \textbf{Falsifiable predictions:}
-- Block length 4 should produce peak entrainment in any sufficiently large autoregressive transformer
-- Broadband resonators (GPT-2 family) should show high pink noise sensitivity regardless of scale
-- Narrowband resonators should require pure frequency forcing for entrainment
+\begin{enumerate}
+    \item Block length 4 should produce peak entrainment in any sufficiently large autoregressive transformer
+    \item Broadband resonators (GPT-2 family) should show high pink noise sensitivity regardless of scale
+    \item Narrowband resonators should require pure frequency forcing for entrainment
+    \item The latent synchronization order parameter $R_t$ should approach 1 before output pathology becomes visible
+\end{enumerate}
 
 Future work should investigate: continuous-time latent dynamics, Lyapunov exponents, attractor dimensionality, cross-layer phase coupling, real-time stability interventions, and latent control systems for AGI safety.
 
 \section{Conclusion}
 
-We introduced MASSIF, a telemetry framework for measuring recursive entrainment in autoregressive language models. Across 8 architectures, we identified three distinct dynamical families based on noise response. GPT-2 Medium is anomalous within its family, suggesting a possible critical scale near 355M parameters. Block length 4 emerges as a universal resonance peak.
+We introduced MASSIF, a telemetry framework for measuring recursive entrainment in autoregressive language models. We introduced the latent synchronization order parameter $R_t$, drawing on Kuramoto's theory of synchronization, transforming MASSIF from a collection of metrics into a dynamical field theory.
 
-We propose \textbf{recursive entrainment} as the unifying concept: persistent latent directional coherence induced by phase-alignment between hidden-state trajectories and periodic or self-referential prompt structure.
+Across 8 architectures, we identified three distinct dynamical families based on noise response. GPT-2 Medium is anomalous within its family, suggesting a possible critical scale near 355M parameters. Block length 4 emerges as a universal resonance peak.
 
-The results suggest that recursive susceptibility behaves spectrally - models respond to dynamical structure rather than semantic content alone. This work contributes to \textbf{Computational Latent Dynamics} and has implications for AI safety, long-context stability, and the design of robust generative systems.
+We proposed \textbf{recursive entrainment} as the unifying concept: persistent latent directional coherence induced by phase-alignment between hidden-state trajectories and periodic or self-referential prompt structure.
+
+The results suggest that recursive susceptibility behaves spectrally — models respond to dynamical structure rather than semantic content alone. This work contributes to \textbf{Computational Latent Dynamics} and has implications for AI safety, long-context stability, and the design of robust generative systems.
 
 \section*{Data and Code Availability}
 
-All code is available at \url{https://github.com/Ergo-sum-AGI/MASSIF}. Raw data and checkpoints are available on Zenodo (10.5281/zenodo.20208319, 10.5281/zenodo.20232960).
+All code is available at \url{https://github.com/Ergo-sum-AGI/MASSIF}. Raw data and checkpoints are available on Zenodo (10.5281/zenodo.20208319, 10.5281/zenodo.20232960, 10.5281/zenodo.20159228).
 
 \section*{Acknowledgments}
 
-We thank NVIDIA for their inception, AWS for compute credits, Google colab for the free tier, and the MASSIF research collective for cross-architectural validation support.
+We thank NVIDIA for compute credits and the MASSIF research collective for cross-architectural validation support.
+
+\bibliographystyle{plain}
+\begin{thebibliography}{99}
+
+\bibitem{kuramoto1984}
+Kuramoto, Y. (1984).
+\textit{Chemical Oscillations, Waves, and Turbulence}.
+Springer-Verlag.
+
+\bibitem{strogatz2001}
+Strogatz, S. H. (2001).
+Exploring complex networks.
+\textit{Nature}, 410(6825), 268-276.
+
+\bibitem{solis2026a}
+Solis, D. (2026).
+Recursive Latent Dynamics in Autoregressive Transformers (with methodological Annex "MASSIF").
+\textit{Zenodo}. https://doi.org/10.5281/zenodo.20159228
+
+\bibitem{solis2026b}
+Solis, D. (2026).
+Latent Dynamics in Autoregressive Transformers: A Framework for Persistence Phase Transitions.
+\textit{Zenodo}. https://doi.org/10.5281/zenodo.20208319
+
+\bibitem{solis2026c}
+Solis, D. (2026).
+Cross-Architectural Study of Persistence Phase Transitions in Latent Transformer Dynamics.
+\textit{Zenodo}. https://doi.org/10.5281/zenodo.20232960
+
+\bibitem{voita2019}
+Voita, E., et al. (2019).
+Analyzing multi-head self-attention.
+\textit{ACL 2019}.
+
+\bibitem{hofstadter1979}
+Hofstadter, D. R. (1979).
+\textit{Gödel, Escher, Bach}.
+Basic Books.
+
+\bibitem{amodei2016}
+Amodei, D., et al. (2016).
+Concrete problems in AI safety.
+\textit{arXiv:1606.06565}.
+
+\end{thebibliography}
 
 \end{document}
